@@ -427,8 +427,17 @@ static NSString *const kPTKOldLocalizedStringsTableName = @"STPaymentLocalizable
     resultString = [PTKTextField textByRemovingUselessSpacesFromString:resultString];
     PTKCardNumber *cardNumber = [PTKCardNumber cardNumberWithString:resultString];
 
-    if (![cardNumber isPartiallyValid])
+    if (![cardNumber isPartiallyValid]) {
+        // https://github.com/stripe/PaymentKit/issues/39
+        cardNumber = [PTKCardNumber cardNumberWithString:[PTKTextField textByRemovingUselessSpacesFromString:self.cardNumberField.text]];
+
+        if ([cardNumber isValid]) {
+            [self textFieldIsValid:self.cardNumberField];
+            [self stateMeta];
+        }
+
         return NO;
+    }
 
     if (replacementString.length > 0) {
         self.cardNumberField.text = [cardNumber formattedStringWithTrail];
@@ -441,10 +450,8 @@ static NSString *const kPTKOldLocalizedStringsTableName = @"STPaymentLocalizable
     if ([cardNumber isValid]) {
         [self textFieldIsValid:self.cardNumberField];
         [self stateMeta];
-
     } else if ([cardNumber isValidLength] && ![cardNumber isValidLuhn]) {
         [self textFieldIsInvalid:self.cardNumberField withErrors:YES];
-
     } else if (![cardNumber isValidLength]) {
         [self textFieldIsInvalid:self.cardNumberField withErrors:NO];
     }
