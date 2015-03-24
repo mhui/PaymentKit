@@ -115,7 +115,7 @@
     if ([self isValidLength]) {
         return [self isValidDate];
     } else {
-        return [self month] <= 12 && _year.length <= 4;
+        return [self month] <= 12 && (_year.length <= 2 || _year.length == 4);;
     }
 }
 
